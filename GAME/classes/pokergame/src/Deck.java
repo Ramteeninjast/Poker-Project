@@ -32,7 +32,7 @@ public class Deck{
         return hand;
     }
 
-    public List<Card> commiunity_cards(){
+    public List<Card> community_cards(){
         List<Card> flop = new ArrayList<>();
         for (int i=1; i<4; i++){
             if (cards.size()!=0) {
