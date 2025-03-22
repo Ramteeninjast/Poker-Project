@@ -32,15 +32,35 @@ public class Deck{
         return hand;
     }
 
+    private List<Card> communityCards = new ArrayList<>(); // Store community cards
+
     public List<Card> community_cards(){
-        List<Card> flop = new ArrayList<>();
-        for (int i=1; i<4; i++){
-            if (cards.size()!=0) {
-                flop.add(cards.remove(0));
+        if (communityCards.isEmpty()) { // Only deal flop once
+            for (int i = 0; i < 3; i++) {
+                communityCards.add(cards.remove(0));
             }
         }
-        return flop;
+        return new ArrayList<>(communityCards);
     }
+
+    public Card turncard(){
+        if (communityCards.size() == 3) { // Ensure turn is dealt only after flop
+            Card turn = cards.remove(0);
+            communityCards.add(turn);
+            return turn;
+        }
+        return null;
+    }
+
+    public Card rivercard(){
+        if (communityCards.size() == 4) { // Ensure river is dealt only after turn
+            Card river = cards.remove(0);
+            communityCards.add(river);
+            return river;
+        }
+        return null;
+    }
+
     public int remainingsize(){
         return cards.size();
     }
