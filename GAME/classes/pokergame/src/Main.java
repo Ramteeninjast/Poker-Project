@@ -20,8 +20,6 @@ public class Main {
         System.out.println("The cards in Player2's hand are: " + player2Cards);
 
 
-
-
         List<Player> players = new ArrayList<>();
         players.add(player1);
         players.add(player2);
@@ -56,5 +54,20 @@ public class Main {
                 }
             }
         }
+        if (player1.isActive() && player2.isActive()) {
+            String player1Hand = Evaluation.evaluateHand(player1.getHand(), deck.community_cards());
+            String player2Hand = Evaluation.evaluateHand(player2.getHand(), deck.community_cards());
+
+            System.out.println("\nPlayer 1 Hand: " + player1Hand);
+            System.out.println("Player 2 Hand: " + player2Hand);
+
+            // Compare and declare winner
+            if (player1Hand.equals(player2Hand)) {
+                System.out.println("It's a tie!");
+            } else {
+                System.out.println(player1Hand.compareTo(player2Hand) > 0 ? "Player 1 wins!" : "Player 2 wins!");
+            }
+        }
+
     }
-    }
+}

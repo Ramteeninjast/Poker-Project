@@ -49,4 +49,8 @@ public class Player {
     public boolean isActive() {
         return isActive;
     }
+    public List<Card> getHand() {
+        return hand; // Assuming 'hand' is a List<Card> storing the player's cards
+    }
+
 }
