@@ -11,7 +11,7 @@ public class Main {
 
             deck.shuffle();
 
-            // ✅ Deal two hole cards to each player
+            // ✅ Correctly deal two hole cards to each player
             player1.receiveCard(deck.dealCards().get(0));
             player1.receiveCard(deck.dealCards().get(1));
             player2.receiveCard(deck.dealCards().get(0));
@@ -31,13 +31,13 @@ public class Main {
                 if (player1.isActive() && player2.isActive()) {
                     Card turn = deck.turncard();
                     System.out.println("\nThe Turn: " + turn);
-                    System.out.println("Community cards now: " + deck.community_cards());
+                    System.out.println("\nCommunity cards on the flop: " + deck.community_cards());
                     betting.startround(); // ✅ Turn betting
 
                     if (player1.isActive() && player2.isActive()) {
                         Card river = deck.rivercard();
                         System.out.println("\nThe River: " + river);
-                        System.out.println("Community cards now: " + deck.community_cards());
+                        System.out.println("\nCommunity cards on the flop: " + deck.community_cards());
 
                         betting.startround(); // ✅ River betting
 
@@ -56,18 +56,25 @@ public class Main {
         System.out.println(player2.getName() + "'s hand: " + player2.getHand());
         System.out.println("Community Cards: " + deck.community_cards());
 
-        // ✅ Compute hand rankings
-        int player1Rank = Evaluation.evaluateHand(player1.getHand(), deck.community_cards());
-        int player2Rank = Evaluation.evaluateHand(player2.getHand(), deck.community_cards());
+        // Get hand evaluations
+        HandResult player1Result = Evaluation.evaluateHand(player1.getHand(), deck.community_cards());
+        HandResult player2Result = Evaluation.evaluateHand(player2.getHand(), deck.community_cards());
 
+        int player1Rank = player1Result.getRank();
+        int player2Rank = player2Result.getRank();
+
+        System.out.println(player1.getName() + " has " + player1Result.getHandType());
+        System.out.println(player2.getName() + " has " + player2Result.getHandType());
+
+        // Determine winner
         if (player1Rank > player2Rank) {
-            System.out.println(player1.getName() + " wins the pot of " + betting.getPot() + " chips!");
+            System.out.println(player1.getName() + " wins with " + player1Result.getHandType() + " and takes " + betting.getPot() + " chips!");
             player1.addChips(betting.getPot());
         } else if (player1Rank < player2Rank) {
-            System.out.println(player2.getName() + " wins the pot of " + betting.getPot() + " chips!");
+            System.out.println(player2.getName() + " wins with " + player2Result.getHandType() + " and takes " + betting.getPot() + " chips!");
             player2.addChips(betting.getPot());
         } else {
-            System.out.println("It's a tie! Pot is split.");
+            System.out.println("It's a tie! Both players have " + player1Result.getHandType() + ". Pot is split.");
             int splitAmount = betting.getPot() / 2;
             player1.addChips(splitAmount);
             player2.addChips(splitAmount);
