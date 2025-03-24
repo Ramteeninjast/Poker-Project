@@ -2,72 +2,78 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
-        Deck deck = new Deck();
-        Player player1 = new Player("Ramteen", 1000);
-        Player player2 = new Player("alice", 1000);
-        deck.shuffle();
+        while (true) {  // Start game loop
+            Deck deck = new Deck();
+            Player player1 = new Player("Ramteen", 1000);
+            Player player2 = new Player("Alice", 1000);
+            List<Player> players = Arrays.asList(player1, player2);
+            Betting betting = new Betting(players);
 
-        List<Card> player1Cards = deck.dealCards();
-        List<Card> player2Cards = deck.dealCards();
+            deck.shuffle();
 
-        player1.receiveCard(player1Cards.get(0));
-        player1.receiveCard(player1Cards.get(1));
-        player2.receiveCard(player2Cards.get(0));
-        player2.receiveCard(player2Cards.get(1));
+            // ✅ Deal two hole cards to each player
+            player1.receiveCard(deck.dealCards().get(0));
+            player1.receiveCard(deck.dealCards().get(1));
+            player2.receiveCard(deck.dealCards().get(0));
+            player2.receiveCard(deck.dealCards().get(1));
 
+            System.out.println("\nThe cards in Player1's hand are: " + player1.getHand());
+            System.out.println("The cards in Player2's hand are: " + player2.getHand());
 
-        System.out.println("The cards in Player1's hand are: " + player1Cards);
-        System.out.println("The cards in Player2's hand are: " + player2Cards);
+            // ✅ Preflop betting
+            betting.startround();
 
-
-        List<Player> players = new ArrayList<>();
-        players.add(player1);
-        players.add(player2);
-
-
-        Betting preflop = new Betting(players);
-        preflop.startround();
-
-
-        if (player1.isActive() && player2.isActive()) {
-            List<Card> flop = deck.community_cards();
-            System.out.println("\nCommunity cards on the flop: " + flop);
-
-            Betting postFlop = new Betting(players);
-            postFlop.startround();
-
-            // ✅ Immediately move to the turn
             if (player1.isActive() && player2.isActive()) {
-                Card turn = deck.turncard();
-                System.out.println("\nThe Turn: " + turn);
-                System.out.println("Community cards now: " + deck.community_cards());
-                Betting turnBetting = new Betting(players);
-                turnBetting.startround();
+                List<Card> flop = deck.community_cards();
+                System.out.println("\nCommunity cards on the flop: " + flop);
+                betting.startround(); // ✅ Postflop betting
 
-                // ✅ Immediately move to the river
                 if (player1.isActive() && player2.isActive()) {
-                    Card river = deck.rivercard();
-                    System.out.println("\nThe River: " + river);
+                    Card turn = deck.turncard();
+                    System.out.println("\nThe Turn: " + turn);
                     System.out.println("Community cards now: " + deck.community_cards());
-                    Betting riverBetting = new Betting(players);
-                    riverBetting.startround();
+                    betting.startround(); // ✅ Turn betting
+
+                    if (player1.isActive() && player2.isActive()) {
+                        Card river = deck.rivercard();
+                        System.out.println("\nThe River: " + river);
+                        System.out.println("Community cards now: " + deck.community_cards());
+
+                        betting.startround(); // ✅ River betting
+
+                        // ✅ Evaluate hands and determine the winner
+                        determineWinner(player1, player2, deck, betting);
+                        break;  // 🚨 Exit the loop so the game does NOT restart
+                    }
                 }
             }
         }
-        if (player1.isActive() && player2.isActive()) {
-            String player1Hand = Evaluation.evaluateHand(player1.getHand(), deck.community_cards());
-            String player2Hand = Evaluation.evaluateHand(player2.getHand(), deck.community_cards());
+    }
 
-            System.out.println("\nPlayer 1 Hand: " + player1Hand);
-            System.out.println("Player 2 Hand: " + player2Hand);
+    public static void determineWinner(Player player1, Player player2, Deck deck, Betting betting) {
+        System.out.println("\n-- FINAL SHOWDOWN --");
+        System.out.println(player1.getName() + "'s hand: " + player1.getHand());
+        System.out.println(player2.getName() + "'s hand: " + player2.getHand());
+        System.out.println("Community Cards: " + deck.community_cards());
 
-            // Compare and declare winner
-            if (player1Hand.equals(player2Hand)) {
-                System.out.println("It's a tie!");
-            } else {
-                System.out.println(player1Hand.compareTo(player2Hand) > 0 ? "Player 1 wins!" : "Player 2 wins!");
-            }
+        // ✅ Compute hand rankings
+        int player1Rank = Evaluation.evaluateHand(player1.getHand(), deck.community_cards());
+        int player2Rank = Evaluation.evaluateHand(player2.getHand(), deck.community_cards());
+
+        if (player1Rank > player2Rank) {
+            System.out.println(player1.getName() + " wins the pot of " + betting.getPot() + " chips!");
+            player1.addChips(betting.getPot());
+        } else if (player1Rank < player2Rank) {
+            System.out.println(player2.getName() + " wins the pot of " + betting.getPot() + " chips!");
+            player2.addChips(betting.getPot());
+        } else {
+            System.out.println("It's a tie! Pot is split.");
+            int splitAmount = betting.getPot() / 2;
+            player1.addChips(splitAmount);
+            player2.addChips(splitAmount);
         }
 
+        // ✅ Reset the pot for the next round
+        betting.resetPot();
     }
 }

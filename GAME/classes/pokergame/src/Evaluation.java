@@ -1,24 +1,24 @@
 import java.util.*;
 
 public class Evaluation {
-    public static String evaluateHand (List<Card> playerCards , List<Card> communityCards){
-        List<Card> allCards = new ArrayList<> (playerCards);
+    public static int evaluateHand(List<Card> playerCards, List<Card> communityCards) {
+        List<Card> allCards = new ArrayList<>(playerCards);
         allCards.addAll(communityCards);
-        allCards.sort(Comparator.comparingInt(Evaluation :: getCardValue ));
+        allCards.sort(Comparator.comparingInt(Evaluation::getCardValue));
 
-        if (isRoyalFlush(allCards)) return "Royal Flush";
-        if (isStraightFlush(allCards)) return "Straight Flush";
-        if (isFourOfAKind(allCards)) return "Four Of A Kind";
-        if (isFullHouse(allCards)) return "Full House";
-        if (isFlush(allCards)) return "Flush";
-        if (isStraight(allCards))  return "Straight";
-        if (isThreeOfAKind(allCards)) return "Three Of A Kind";
-        if (isTwoPair(allCards)) return "Two Pair";
-        if(isPair(allCards)) return "Pair";
+        if (isRoyalFlush(allCards)) return 10;
+        if (isStraightFlush(allCards)) return 9;
+        if (isFourOfAKind(allCards)) return 8;
+        if (isFullHouse(allCards)) return 7;
+        if (isFlush(allCards)) return 6;
+        if (isStraight(allCards)) return 5;
+        if (isThreeOfAKind(allCards)) return 4;
+        if (isTwoPair(allCards)) return 3;
+        if (isPair(allCards)) return 2;
 
-        return "High Card " + allCards.get(allCards.size() - 1);
-
+        return 1; // High Card
     }
+
 
     public static boolean isRoyalFlush(List<Card> cards) {
         Set<Integer> cardValues = new HashSet<>();
@@ -137,4 +137,20 @@ public class Evaluation {
         valueMap.put("Ace", 14);
         return valueMap.get(card.getrank());
     }
+    private static int convertRankToInt(String handRank) {
+        return switch (handRank) {
+            case "High Card" -> 1;
+            case "One Pair" -> 2;
+            case "Two Pair" -> 3;
+            case "Three of a Kind" -> 4;
+            case "Straight" -> 5;
+            case "Flush" -> 6;
+            case "Full House" -> 7;
+            case "Four of a Kind" -> 8;
+            case "Straight Flush" -> 9;
+            case "Royal Flush" -> 10;
+            default -> 0; // Return 0 if unrecognized
+        };
+    }
+
 }

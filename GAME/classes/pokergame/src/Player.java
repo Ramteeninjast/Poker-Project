@@ -52,5 +52,17 @@ public class Player {
     public List<Card> getHand() {
         return hand; // Assuming 'hand' is a List<Card> storing the player's cards
     }
+    public void addChips(int amount) {
+        this.chips += amount;
+    }
+    public void reduceChips(int amount) {
+        if (amount <= chips) {
+            this.chips -= amount; // ✅ Deducts chips when betting
+        } else {
+            System.out.println(name + " doesn't have enough chips!");
+        }
+    }
+
+
 
 }
