@@ -22,17 +22,33 @@ public class Main {
 
             // ✅ Preflop betting
             betting.startround();
+            Player winner = betting.getWinnerIfFolded();
+            if (winner != null) {
+                awardPotAndEndGame(winner, betting);
+                return;
+
+            }
 
             if (player1.isActive() && player2.isActive()) {
                 List<Card> flop = deck.community_cards();
                 System.out.println("\nCommunity cards on the flop: " + flop);
-                betting.startround(); // ✅ Postflop betting
+                betting.startround();// ✅ Postflop betting
+                winner = betting.getWinnerIfFolded();
+                if (winner != null) {
+                    awardPotAndEndGame(winner, betting);
+                    return;
+                }
 
                 if (player1.isActive() && player2.isActive()) {
                     Card turn = deck.turncard();
                     System.out.println("\nThe Turn: " + turn);
                     System.out.println("\nCommunity cards on the flop: " + deck.community_cards());
-                    betting.startround(); // ✅ Turn betting
+                    betting.startround();// ✅ Turn betting
+                    winner = betting.getWinnerIfFolded();
+                    if (winner != null) {
+                        awardPotAndEndGame(winner, betting);
+                        return;
+                    }
 
                     if (player1.isActive() && player2.isActive()) {
                         Card river = deck.rivercard();
@@ -40,6 +56,11 @@ public class Main {
                         System.out.println("\nCommunity cards on the flop: " + deck.community_cards());
 
                         betting.startround(); // ✅ River betting
+                        winner = betting.getWinnerIfFolded();
+                        if (winner != null) {
+                            awardPotAndEndGame(winner, betting);
+                            return;
+                        }
 
                         // ✅ Evaluate hands and determine the winner
                         determineWinner(player1, player2, deck, betting);
@@ -83,4 +104,12 @@ public class Main {
         // ✅ Reset the pot for the next round
         betting.resetPot();
     }
+    public static void awardPotAndEndGame(Player winner, Betting betting) {
+        System.out.println("\n" + winner.getName() + " wins the round because the opponent folded!");
+        System.out.println(winner.getName() + " takes the pot of " + betting.getPot() + " chips!");
+        winner.addChips(betting.getPot());
+        betting.resetPot();
+    }
+
+
 }

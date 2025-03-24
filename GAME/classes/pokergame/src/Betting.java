@@ -5,7 +5,7 @@ public class Betting {
     private List<Player> players;
     private int pot;
     private int highestbet;
-    private boolean bettingFinished; // 🔹 Flag to track when betting is done
+    private boolean bettingFinished;
     private Scanner scanner;
 
     public Betting(List<Player> players) {
@@ -17,13 +17,13 @@ public class Betting {
     }
 
     public void startround() {
-        bettingFinished = false; // Reset the flag at the start of each betting round
+        bettingFinished = false;
 
-        while (!bettingFinished) { // 🔹 Loop until the round is finished
-            bettingFinished = true; // Assume betting will be finished, unless a raise occurs
+        while (!bettingFinished) {
+            bettingFinished = true;
 
             for (Player player : players) {
-                if (!player.isActive()) continue; // Skip folded players
+                if (!player.isActive()) continue;
 
                 System.out.println("\n" + player.getName() + "'s turn to play");
                 System.out.println("Current pot: " + pot);
@@ -38,15 +38,17 @@ public class Betting {
                     case 2 -> Call(player);
                     case 3 -> {
                         Raise(player);
-                        bettingFinished = false; // 🔹 Betting is NOT finished if someone raises
+                        bettingFinished = false;
                     }
                     case 4 -> Check(player);
-                    case 5 -> Fold(player);
+                    case 5 -> {
+                        Fold(player);
+                        if (getWinnerIfFolded() != null) return; // Stop the game if only one player remains
+                    }
                     default -> System.out.println("Invalid choice");
                 }
             }
 
-            // 🔹 Check if all players are either folded or have called the highest bet
             if (allPlayersHaveCalledOrFolded()) {
                 bettingFinished = true;
             }
@@ -56,10 +58,10 @@ public class Betting {
     private boolean allPlayersHaveCalledOrFolded() {
         for (Player player : players) {
             if (player.isActive() && player.getCurrentBet() < highestbet) {
-                return false; // A player still needs to match the bet
+                return false;
             }
         }
-        return true; // Betting round is done
+        return true;
     }
 
     private void Check(Player player) {
@@ -86,7 +88,7 @@ public class Betting {
     }
 
     private void Call(Player player) {
-        int amountToCall = highestbet - player.getCurrentBet(); // Get the difference
+        int amountToCall = highestbet - player.getCurrentBet();
         if (amountToCall <= 0) {
             System.out.println(player.getName() + " has already matched the bet.");
             return;
@@ -125,5 +127,23 @@ public class Betting {
     public void resetPot() {
         pot = 0;
         highestbet = 0;
+    }
+
+    public Player getWinnerIfFolded() {
+        int activeCount = 0;
+        Player lastActive = null;
+
+        for (Player player : players) {
+            if (player.isActive()) {
+                activeCount++;
+                lastActive = player;
+            }
+        }
+
+        if (activeCount == 1 && lastActive != null) {
+            Main.awardPotAndEndGame(lastActive, this);
+            return lastActive;
+        }
+        return null;
     }
 }
