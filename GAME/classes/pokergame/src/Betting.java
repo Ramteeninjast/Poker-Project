@@ -118,6 +118,12 @@ public class Betting {
     private void Fold(Player player) {
         player.fold();
         System.out.println(player.getName() + " folds.");
+        for (Player remaining : players) {
+            if (remaining.isActive()) {
+                Main.awardPotAndEndGame(remaining, this);
+                return;
+            }
+        }
     }
 
     public int getPot() {
